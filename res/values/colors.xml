@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="word_bar">#FF0000</color>
+    <color name="number_bar">#00FF00</color>
+    <color name="match_item_text_color">#000000</color>
+    <color name="match_item_divider_color">#CCCCCC</color>
+    <color name="tabMedium">#2B2B2B</color>
+    <color name="taxistatusbg">#CCFFFF</color>
+    <color name="tabDark">#000000</color>
+    <color name="tabTransparent">#10ffffff</color>
+    <color name="Transparent">#00000000 </color>	
+    <color name="red">#FF0000 </color>
+    <color name="green">#00CC00 </color>
+    <color name="orange">#FFA500</color>
+    <color name="white">#FFFFFF </color>
+    <color name="blue">#0000FF </color>
+    <color name="grey">#C0C0C0 </color>
+    <color name="lightblue">#ADD8E6 </color>
+    <color name="RestListRestTitle">#AA6666</color>
+     <color name="RestListRestAddress">#AA6633</color>
+
+</resources>
