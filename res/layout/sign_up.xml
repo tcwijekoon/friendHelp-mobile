@@ -225,9 +225,9 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
                 android:text="Address"
-                android:textStyle="bold|italic" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TableRow
                 android:id="@+id/tableRow11"
@@ -304,6 +304,7 @@
                         android:id="@+id/tvDob"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="3"
                         android:text="Date of Birth" />
 
@@ -311,7 +312,7 @@
                         android:id="@+id/btnDob"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7"
+                        android:layout_weight="4"
                         android:background="@drawable/btn_click"
                         android:onClick="showDatePickerDialog"
                         android:text="Select date" />
@@ -364,7 +365,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/btn_click"
-                android:onClick="signUp"
+                android:onClick="submitSignUpDetails"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:text="SignUp"

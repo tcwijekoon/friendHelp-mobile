@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.tw.friendhelp.model.ConfirmDialog;
+import com.tw.friendhelp.model.adapter.HelpApplication;
 import com.tw.friendhelp.service.DbConnect;
 
 public class Login extends Activity {
@@ -60,24 +61,22 @@ public class Login extends Activity {
 				userName = etUserName.getText().toString();
 				pwd = etPwd.getText().toString();
 				if (userName.length() != 0 && pwd.length() != 0) {
-					// new sendSignInData().execute();
-					Intent i = new Intent(Login.this, Home.class);
-					startActivity(i);
+					new sendSignInData().execute();
+					// Intent i = new Intent(Login.this, Home.class);
+					// startActivity(i);
 
-//					HelpApplication app = (HelpApplication) Login.this
-//							.getApplication();
-//					app.signIn(userName, pwd);
+					// HelpApplication app = (HelpApplication) Login.this
+					// .getApplication();
+					// app.signIn(userName, pwd);
 
 				} else {
 					final ConfirmDialog cd = new ConfirmDialog(Login.this, null);
-					cd.setContents("Invalid data.",
-							"Please enter a valid user name and password.");
-					cd.cdpoitiveButton
-							.setOnClickListener(new OnClickListener() {
-								public void onClick(View v) {
-									cd.dismiss();
-								}
-							});
+					cd.setContents("Invalid data.", "Please enter a valid user name and password.");
+					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							cd.dismiss();
+						}
+					});
 					cd.show();
 				}
 			}
@@ -114,7 +113,7 @@ public class Login extends Activity {
 				e.printStackTrace();
 			}
 			List<NameValuePair> Login = new ArrayList<NameValuePair>(1);
-			Login.add(new BasicNameValuePair("Log", jobj.toString()));
+			Login.add(new BasicNameValuePair("LoginForm", jobj.toString()));
 			JSONArray jarray = new DbConnect().workingMethod("Login", Login);
 			return jarray;
 
@@ -131,33 +130,19 @@ public class Login extends Activity {
 				if (s.equals("true")) {
 					Intent i = new Intent(Login.this, Home.class);
 					startActivity(i);
+				} else {
+					final ConfirmDialog cd = new ConfirmDialog(Login.this, null);
+					cd.setContents("Login failed.", jobj.getString("message"));
+					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+						public void onClick(View v) {
+							cd.dismiss();
+						}
+					});
+					cd.show();
 				}
-				String msg;
-				// if (s.equals("true")) {
-				// userId= jobj.getString("userid");
-				// MarketApplication.editPreferences().putString("userId",
-				// userId).commit();
-				// //
-				// TaxiGlobal.getInstance().setMsisdn(SplititApplication.preferences.getString("MSISDN",
-				// ""));
-				// Intent i = new Intent(Login.this, Checkout.class);
-				// startActivity(i);
-				// } else {
-				// msg = jobj.getString("message");
-				// etUserName.setText("");
-				// final ConfirmDialog cd = new ConfirmDialog(Login.this, null);
-				// cd.setContents("Invalid details.", msg);
-				// cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-				// public void onClick(View v) {
-				// cd.dismiss();
-				// }
-				// });
-				// cd.show();
-				// }
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-
 			if (progressDlg.isShowing())
 				progressDlg.dismiss();
 		}

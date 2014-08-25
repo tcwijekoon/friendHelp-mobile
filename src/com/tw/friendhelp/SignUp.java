@@ -17,7 +17,6 @@ import org.json.JSONObject;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -33,7 +32,6 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import com.google.gson.Gson;
-import com.tw.friendhelp.Login.sendSignInData;
 import com.tw.friendhelp.model.ConfirmDialog;
 import com.tw.friendhelp.service.DbConnect;
 import com.tw.friendhelp.vo.BloodGroupVO;
@@ -173,7 +171,7 @@ public class SignUp extends FragmentActivity {
 		}
 	}
 
-	void submitSignUpDetails() {
+	public void submitSignUpDetails(View v) {
 		user_name = etUserName.getText().toString();
 		password = etPwd.getText().toString();
 		retype_pwd = etRetypePwd.getText().toString();
@@ -248,7 +246,7 @@ public class SignUp extends FragmentActivity {
 			cd.show();
 		} else {
 			bld_grp_id = vecBldGrp.get(spnBldGrp.getSelectedItemPosition()).getBld_grp_id();
-			skill_id = vecSkills.get(spnBldGrp.getSelectedItemPosition()).getSkill_id();
+			skill_id = vecSkills.get(spnSkills.getSelectedItemPosition()).getSkill_id();
 
 			// male - gender - 0
 			gender = ((RadioButton) findViewById(R.id.rbMale)).isSelected() ? 0 : 1;
@@ -290,11 +288,10 @@ public class SignUp extends FragmentActivity {
 		@Override
 		protected JSONArray doInBackground(String... arg0) {
 			List<NameValuePair> signup = new ArrayList<NameValuePair>(1);
-			signup.add(new BasicNameValuePair("Log", arg0[0]));
+			signup.add(new BasicNameValuePair("SignUp", arg0[0]));
 
-//			JSONArray jarray = new DbConnect().workingMethodForSignUp(signup);
-//			return jarray;
-			return null;
+			JSONArray jarray = new DbConnect().workingMethod("SignUp",signup);
+			return jarray;
 
 		}
 
@@ -369,9 +366,9 @@ public class SignUp extends FragmentActivity {
 			// dateCompareOne = parseDate(datedf.format(c.getTime()));
 			dateCompareOne = parseDate(datedf.format(tmp.getTime()));
 
-			if (date.before(dateCompareOne)) {
+			if (date.after(dateCompareOne)) {
 				final ConfirmDialog cd = new ConfirmDialog(SignUp.this, null);
-				cd.setContents("Invalid date selection", "Please select a day more than current date.");
+				cd.setContents("Invalid date selection", "Please select a valid birth date.");
 				cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
 						cd.dismiss();
