@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -150,7 +151,8 @@ public class SignUp extends FragmentActivity {
 				try {
 					super.onPostExecute(ja);
 
-					JSONArray res =ja.getJSONObject(0).getJSONArray("result");;
+					JSONArray res = ja.getJSONObject(0).getJSONArray("result");
+					;
 					ArrayList<String> arrSkills = new ArrayList<String>();
 					for (int i = 0; i < res.length(); i++) {
 						Gson g = new Gson();
@@ -177,6 +179,8 @@ public class SignUp extends FragmentActivity {
 		retype_pwd = etRetypePwd.getText().toString();
 		email = etEmail.getText().toString();
 		mob_no = etmobNo.getText().toString();
+		first_name = etFname.getText().toString();
+		last_name = etLName.getText().toString();
 		address_no = etLandNo.getText().toString();
 		address_street = etStreet.getText().toString();
 		address_no = etCity.getText().toString();
@@ -257,8 +261,8 @@ public class SignUp extends FragmentActivity {
 				jobj.put("password", password);
 				jobj.put("first_name", first_name);
 				jobj.put("last_name", last_name);
-				jobj.put("email", email);
 				jobj.put("mob_no", mob_no);
+				jobj.put("email", email);
 				jobj.put("dob", btnDob.getText());
 				jobj.put("gender", gender);
 				jobj.put("address_no", address_no);
@@ -266,7 +270,6 @@ public class SignUp extends FragmentActivity {
 				jobj.put("address_city", address_city);
 				jobj.put("bld_grp_id", bld_grp_id);
 				jobj.put("skill_id", skill_id);
-				jobj.put("status_id", 0);
 
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -290,41 +293,50 @@ public class SignUp extends FragmentActivity {
 			List<NameValuePair> signup = new ArrayList<NameValuePair>(1);
 			signup.add(new BasicNameValuePair("SignUp", arg0[0]));
 
-			JSONArray jarray = new DbConnect().workingMethod("SignUp",signup);
+			JSONArray jarray = new DbConnect().workingMethod("SignUp", signup);
 			return jarray;
 
 		}
 
 		@Override
 		protected void onPostExecute(JSONArray result) {
-			Log.i("json", result.toString());
-			super.onPostExecute(result);
-			JSONObject jobj;
-//			try {
-//				jobj = result.getJSONObject(0);
-//				String s = jobj.getString("success");
-//				String msg;
-//				if (s.equals("true")) {
-//					userId = jobj.getString("userid");
-//					OrderApplication.editPreferences().putString("userId", userId).commit();
-//					Intent i = new Intent(SignUp.this, Checkout.class);
-//					// i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//					startActivity(i);
-//				} else {
-//					msg = jobj.getString("message");
-//					final ConfirmDialog cd = new ConfirmDialog(SignUp.this, null);
-//					cd.setContents("Invalid details.", msg);
-//					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-//						public void onClick(View v) {
-//							cd.dismiss();
-//						}
-//					});
-//					cd.show();
-//				}
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
+			if (result != null) {
+				Log.i("json", result.toString());
+				super.onPostExecute(result);
+				JSONObject jobj;
+				try {
+					jobj = result.getJSONObject(0);
+					boolean success = jobj.getBoolean("success");
+					String msg;
+					if (success) {
+						String userName = jobj.getString("user_name");
+						Intent i = new Intent(SignUp.this, Home.class);
+						startActivity(i);
+					} else {
+						msg = jobj.getString("message");
+						final ConfirmDialog cd = new ConfirmDialog(SignUp.this, null);
+						cd.setContents("Sign up failed.", msg);
+						cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+							public void onClick(View v) {
+								cd.dismiss();
+							}
+						});
+						cd.show();
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 
+			} else {
+				final ConfirmDialog cd = new ConfirmDialog(SignUp.this, null);
+				cd.setContents("Sign up failed.", "Username or email already exists");
+				cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						cd.dismiss();
+					}
+				});
+				cd.show();
+			}
 			if (progressDlg.isShowing())
 				progressDlg.dismiss();
 		}
