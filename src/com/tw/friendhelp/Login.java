@@ -12,8 +12,11 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,18 +24,21 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.tw.friendhelp.model.ConfirmDialog;
-import com.tw.friendhelp.model.adapter.HelpApplication;
+import com.tw.friendhelp.model.HelpApplication;
 import com.tw.friendhelp.service.DbConnect;
 
 public class Login extends Activity {
 	String userName, pwd;
 	EditText etUserName, etPwd;
 	ProgressDialog progressDlg;
+	private SharedPreferences sharedPreferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
+
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		progressDlg = new ProgressDialog(this);
 		progressDlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -61,13 +67,21 @@ public class Login extends Activity {
 				userName = etUserName.getText().toString();
 				pwd = etPwd.getText().toString();
 				if (userName.length() != 0 && pwd.length() != 0) {
-					new sendSignInData().execute();
-					// Intent i = new Intent(Login.this, Home.class);
-					// startActivity(i);
 
-					// HelpApplication app = (HelpApplication) Login.this
-					// .getApplication();
-					// app.signIn(userName, pwd);
+					String value = "{\"userName\":\"" + userName + "\"," + "\"password\":\"" + pwd + "\"}";
+
+					Editor editor = sharedPreferences.edit();
+					editor.putString("user_credentials", value);
+					editor.commit();
+
+					try {
+
+						HelpApplication helpApp = (HelpApplication) Login.this.getApplication();
+						helpApp.signIn(Login.this);
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 
 				} else {
 					final ConfirmDialog cd = new ConfirmDialog(Login.this, null);
@@ -89,62 +103,5 @@ public class Login extends Activity {
 				startActivity(i);
 			}
 		});
-	}
-
-	class sendSignInData extends AsyncTask<Void, Void, JSONArray> {
-		JSONArray jaa;
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			progressDlg.setMessage("Please wait");
-			progressDlg.show();
-		}
-
-		@Override
-		protected JSONArray doInBackground(Void... arg0) {
-
-			JSONObject jobj = new JSONObject();
-			try {
-				jobj.put("username", userName);
-				jobj.put("password", pwd);
-
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			List<NameValuePair> Login = new ArrayList<NameValuePair>(1);
-			Login.add(new BasicNameValuePair("LoginForm", jobj.toString()));
-			JSONArray jarray = new DbConnect().workingMethod("Login", Login);
-			return jarray;
-
-		}
-
-		@Override
-		protected void onPostExecute(JSONArray result) {
-			Log.i("json", result.toString());
-			super.onPostExecute(result);
-			JSONObject jobj;
-			try {
-				jobj = result.getJSONObject(0);
-				String s = jobj.getString("success");
-				if (s.equals("true")) {
-					Intent i = new Intent(Login.this, Home.class);
-					startActivity(i);
-				} else {
-					final ConfirmDialog cd = new ConfirmDialog(Login.this, null);
-					cd.setContents("Login failed.", jobj.getString("message"));
-					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-						public void onClick(View v) {
-							cd.dismiss();
-						}
-					});
-					cd.show();
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			if (progressDlg.isShowing())
-				progressDlg.dismiss();
-		}
 	}
 }

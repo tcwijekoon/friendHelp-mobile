@@ -18,8 +18,11 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -34,6 +37,7 @@ import android.widget.Spinner;
 
 import com.google.gson.Gson;
 import com.tw.friendhelp.model.ConfirmDialog;
+import com.tw.friendhelp.model.HelpApplication;
 import com.tw.friendhelp.service.DbConnect;
 import com.tw.friendhelp.vo.BloodGroupVO;
 import com.tw.friendhelp.vo.SkillsVO;
@@ -55,6 +59,8 @@ public class SignUp extends FragmentActivity {
 	Vector<SkillsVO> vecSkills = new Vector<SkillsVO>();
 	Vector<BloodGroupVO> vecBldGrp = new Vector<BloodGroupVO>();
 
+	private SharedPreferences sharedPreferences;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,6 +70,8 @@ public class SignUp extends FragmentActivity {
 		progressDlg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		progressDlg.setCanceledOnTouchOutside(false);
 		progressDlg.setCancelable(false);
+
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		etUserName = (EditText) findViewById(R.id.etUserName);
 		etPwd = (EditText) findViewById(R.id.etPwd);
@@ -309,9 +317,21 @@ public class SignUp extends FragmentActivity {
 					boolean success = jobj.getBoolean("success");
 					String msg;
 					if (success) {
-						String userName = jobj.getString("user_name");
-						Intent i = new Intent(SignUp.this, Home.class);
-						startActivity(i);
+						String value = "{\"userName\":\"" + user_name + "\"," + "\"password\":\"" + password + "\"}";
+
+						Editor editor = sharedPreferences.edit();
+						editor.putString("user_credentials", value);
+						editor.commit();
+
+						try {
+							HelpApplication helpApp = (HelpApplication) SignUp.this.getApplication();
+							helpApp.signIn(SignUp.this);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						// String userName = jobj.getString("user_name");
+						// Intent i = new Intent(SignUp.this, Home.class);
+						// startActivity(i);
 					} else {
 						msg = jobj.getString("message");
 						final ConfirmDialog cd = new ConfirmDialog(SignUp.this, null);

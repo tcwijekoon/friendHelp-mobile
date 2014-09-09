@@ -19,6 +19,8 @@ public class Home extends FragmentActivity implements ActionBar.TabListener {
 	private ActionBar actionBar;
 	// Tab titles
 	private String[] tabs = { "Help", "My Location", "Settings" };
+	
+	public int userId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
