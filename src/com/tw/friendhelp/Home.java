@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
+import com.tw.friendhelp.model.HelpApplication;
 import com.tw.friendhelp.model.adapter.TabsPagerAdapter;
 import com.tw.friendhelp.service.MyService;
 
@@ -19,13 +20,17 @@ public class Home extends FragmentActivity implements ActionBar.TabListener {
 	private ActionBar actionBar;
 	// Tab titles
 	private String[] tabs = { "Help", "My Location", "Settings" };
-	
+
 	public int userId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home);
+
+		if (!checkServiceRunning()) {
+			startService(new Intent(this, MyService.class));
+		}
 
 		fragmentManager = getSupportFragmentManager();
 		// Initilization
@@ -39,8 +44,7 @@ public class Home extends FragmentActivity implements ActionBar.TabListener {
 
 		// Adding Tabs
 		for (String tab_name : tabs) {
-			actionBar.addTab(actionBar.newTab().setText(tab_name)
-					.setTabListener(this));
+			actionBar.addTab(actionBar.newTab().setText(tab_name).setTabListener(this));
 		}
 
 		/**
@@ -64,8 +68,8 @@ public class Home extends FragmentActivity implements ActionBar.TabListener {
 			}
 		});
 
-//		startService(new Intent(this, MyService.class));
-//		stopService(new Intent(this, MyService.class));
+		// startService(new Intent(this, MyService.class));
+		// stopService(new Intent(this, MyService.class));
 	}
 
 	@Override
@@ -106,5 +110,10 @@ public class Home extends FragmentActivity implements ActionBar.TabListener {
 	// notificationManager.notify(0, noti);
 	//
 	// }
+
+	boolean checkServiceRunning() {
+		HelpApplication helpApp = (HelpApplication) this.getApplication();
+		return helpApp.isMyServiceRunning(MyService.class);
+	}
 
 }

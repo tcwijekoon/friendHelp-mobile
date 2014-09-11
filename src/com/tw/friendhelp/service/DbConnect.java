@@ -23,7 +23,7 @@ import android.util.Log;
 public class DbConnect {
 	String Tag = "DbConnect";
 	InputStream is = null;
-	String url = "http://192.168.173.1/friendhelp/index.php?r=api/";
+	String url = "http://192.168.137.1/friendhelp/index.php?r=api/";
 	String subUrl;
 	List<NameValuePair> ll;
 
