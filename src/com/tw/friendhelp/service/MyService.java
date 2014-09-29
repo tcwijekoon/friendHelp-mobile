@@ -2,6 +2,7 @@ package com.tw.friendhelp.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -9,17 +10,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.tw.friendhelp.model.AppConstant;
+
 import android.app.Service;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Toast;
-
-import com.tw.friendhelp.model.ConfirmDialog;
 
 public class MyService extends Service implements ILocationListner {
 	private static final String TAG = "MyService";
@@ -84,12 +85,21 @@ public class MyService extends Service implements ILocationListner {
 
 		JSONObject jobj = new JSONObject();
 		try {
-			jobj.put("user_id", 3);
+			jobj.put("user_id", AppConstant.userId);
 			jobj.put("gps_lat", loc.getLatitude());
 			jobj.put("gps_lon", loc.getLongitude());
-			jobj.put("location_address", "Niungama");
 
-		} catch (JSONException e) {
+			Geocoder geocoder;
+			List<Address> addresses;
+			geocoder = new Geocoder(this, Locale.getDefault());
+			addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+			String address = addresses.get(0).getAddressLine(0);
+			String city = addresses.get(0).getAddressLine(1);
+			String country = addresses.get(0).getAddressLine(2);
+
+			jobj.put("location_address", address + city + country);
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		new UpdateUserLocation().execute(jobj.toString());
@@ -127,14 +137,14 @@ public class MyService extends Service implements ILocationListner {
 					msg = jobj.getString("message");
 				} else {
 					msg = jobj.getString("message");
-					final ConfirmDialog cd = new ConfirmDialog(MyService.this, null);
-					cd.setContents("Sign up failed.", msg);
-					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-						public void onClick(View v) {
-							cd.dismiss();
-						}
-					});
-					cd.show();
+//					final ConfirmDialog cd = new ConfirmDialog(MyService.this.getApplicationContext(), null);
+//					cd.setContents("Sign up failed.", msg);
+//					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+//						public void onClick(View v) {
+//							cd.dismiss();
+//						}
+//					});
+//					cd.show();
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();

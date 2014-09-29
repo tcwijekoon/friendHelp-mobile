@@ -59,7 +59,7 @@ public class MyLocation {
 
 	public void startTimer() {
 		timer1 = new Timer();
-		timer1.schedule(new GetLastLocation(), 5000, 10000);
+		timer1.schedule(new GetLastLocation(), 5000, 60*10*1000);
 	}
 
 	public void cancelTimer() {
@@ -149,7 +149,7 @@ public class MyLocation {
 				}
 				// locationResult.gotLocation(null);
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				System.out.println(e.getStackTrace());
 			}
 		}
 	}

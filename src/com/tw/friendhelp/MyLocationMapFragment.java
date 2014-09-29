@@ -2,7 +2,6 @@ package com.tw.friendhelp;
 
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.tw.friendhelp.service.ILocationListner;
-import com.tw.friendhelp.service.MyLocation;
 
 public class MyLocationMapFragment extends Fragment implements ILocationListner {
 
@@ -27,14 +24,14 @@ public class MyLocationMapFragment extends Fragment implements ILocationListner 
 
 	private static GoogleMap mMap;
 //	private static Double latitude, longitude;
-	private MyLocation myLocation;
+//	private MyLocation myLocation;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		myLocation = new MyLocation(getActivity());
-		if (myLocation.getLocation())
-			myLocation.registerListner(this);
+//		myLocation = new MyLocation(getActivity());
+//		if (myLocation.getLocation())
+//			myLocation.registerListner(this);
 	}
 
 	@Override

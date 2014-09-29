@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
-import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,9 +21,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.tw.friendhelp.SignUp.sendSignUpData;
 import com.tw.friendhelp.model.ConfirmDialog;
-import com.tw.friendhelp.model.HelpApplication;
 import com.tw.friendhelp.service.DbConnect;
 import com.tw.friendhelp.vo.SkillsVO;
 
@@ -35,6 +32,7 @@ public class HelpFragment extends Fragment {
 	Vector<SkillsVO> vecSkills = new Vector<SkillsVO>();
 	int skill_id;
 	Button btnHelp;
+	String userId;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,24 +47,21 @@ public class HelpFragment extends Fragment {
 		// spnForWhat = (Spinner) view.findViewById(R.id.spnForWhat);
 		btnHelp = (Button) view.findViewById(R.id.btnHelp);
 
+		userId = ((Home)getActivity()).userId;
 		btnHelp.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				JSONObject jobj = new JSONObject();
 				try {
-					jobj.put("user_id", 3);
-					jobj.put("status", 1);
+					jobj.put("user_id", userId);
+					jobj.put("status", 2);
 
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 				new RequestHelp().execute(jobj.toString());
-				// skill_id =
-				// vecSkills.get(spnForWhat.getSelectedItemPosition()).getSkill_id();
 			}
 		});
-		// new loadSkills().execute();
-
 		return view;
 	}
 
@@ -87,81 +82,107 @@ public class HelpFragment extends Fragment {
 
 			JSONArray jarray = new DbConnect().workingMethod("RequestHelp", signup);
 			return jarray;
-
 		}
 
 		@Override
 		protected void onPostExecute(JSONArray result) {
-			Log.i("json", result.toString());
-			super.onPostExecute(result);
-			JSONObject jobj;
-			try {
-				jobj = result.getJSONObject(0);
-				boolean success = jobj.getBoolean("success");
-				String msg;
-				if (success) {
-					msg = jobj.getString("message");
-				} else {
-					msg = jobj.getString("message");
-					final ConfirmDialog cd = new ConfirmDialog(getActivity(), null);
-					cd.setContents("Sign up failed.", msg);
-					cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-						public void onClick(View v) {
-							cd.dismiss();
-						}
-					});
-					cd.show();
+			if (result != null) {
+				Log.i("json", result.toString());
+				super.onPostExecute(result);
+				JSONObject jobj;
+				try {
+					jobj = result.getJSONObject(0);
+					boolean success = jobj.getBoolean("success");
+					String msg;
+
+					if (success) {
+						final ConfirmDialog cd = new ConfirmDialog(getActivity(), null);
+						msg = "Notification sent to near by friends.To cancel request press cancel";
+						cd.setContents("Notifications sent.", msg);
+						cd.cdpoitiveButton.setText("Cancel");
+						cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+							public void onClick(View v) {
+								new CancelRequest().execute(userId);
+								cd.dismiss();
+							}
+						});
+						cd.show();
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
+			} else {
+				final ConfirmDialog cd = new ConfirmDialog(getActivity(), null);
+				cd.setContents("Requesting help faild.", "Server error. Retry again");
+				cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						cd.dismiss();
+					}
+				});
+				cd.show();
 			}
 			if (progressDlg.isShowing())
 				progressDlg.dismiss();
 		}
 	}
 
-	// class loadSkills extends AsyncTask<Void, Void, JSONArray> {
-	// JSONArray jaa;
-	//
-	// @Override
-	// protected void onPreExecute() {
-	// super.onPreExecute();
-	// progressDlg.setMessage("loading skills.please wait.");
-	// progressDlg.show();
-	// }
-	//
-	// @Override
-	// protected JSONArray doInBackground(Void... arg0) {
-	// JSONArray jarray = new DbConnect().workingMethod("GetSkills");
-	// return jarray;
-	//
-	// }
-	//
-	// @Override
-	// protected void onPostExecute(JSONArray ja) {
-	// if (ja != null) {
-	// try {
-	// super.onPostExecute(ja);
-	//
-	// JSONArray res = ja.getJSONObject(0).getJSONArray("result");
-	// ArrayList<String> arrSkills = new ArrayList<String>();
-	// for (int i = 0; i < res.length(); i++) {
-	// Gson g = new Gson();
-	// SkillsVO skills = g.fromJson(res.get(i).toString(), SkillsVO.class);
-	// vecSkills.add(skills);
-	// arrSkills.add(skills.getSkill());
-	// }
-	// ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(getActivity(),
-	// android.R.layout.simple_spinner_item, arrSkills);
-	// adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	// spnForWhat.setAdapter(adapter2);
-	//
-	// if (progressDlg.isShowing())
-	// progressDlg.dismiss();
-	// } catch (JSONException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// }
+	class CancelRequest extends AsyncTask<String, Void, JSONArray> {
+		JSONArray jaa;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			progressDlg.setMessage("Please wait");
+			progressDlg.show();
+		}
+
+		@Override
+		protected JSONArray doInBackground(String... arg0) {
+			List<NameValuePair> signup = new ArrayList<NameValuePair>(1);
+			signup.add(new BasicNameValuePair("user_id", userId));
+
+			JSONArray jarray = new DbConnect().workingMethod("CancellRequest", signup);
+			return jarray;
+
+		}
+
+		@Override
+		protected void onPostExecute(JSONArray result) {
+			if (result != null) {
+				Log.i("json", result.toString());
+				super.onPostExecute(result);
+				JSONObject jobj;
+				try {
+					jobj = result.getJSONObject(0);
+					boolean success = jobj.getBoolean("success");
+					String msg;
+
+					if (success) {
+						final ConfirmDialog cd = new ConfirmDialog(getActivity(), null);
+						msg = jobj.getString("message");
+						cd.setContents("Request Cancelled.", msg);
+						cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+							public void onClick(View v) {
+								cd.dismiss();
+							}
+						});
+						cd.show();
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else {
+				final ConfirmDialog cd = new ConfirmDialog(getActivity(), null);
+				cd.setContents("Requesting help faild.", "Server error. Retry again");
+				cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						cd.dismiss();
+					}
+				});
+				cd.show();
+			}
+			if (progressDlg.isShowing())
+				progressDlg.dismiss();
+		}
+	}
 }

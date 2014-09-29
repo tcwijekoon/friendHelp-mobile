@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -85,37 +86,43 @@ public class HelpApplication extends Application {
 
 				@Override
 				protected void onPostExecute(JSONArray result) {
-					Log.i("json", result.toString());
-					super.onPostExecute(result);
-					JSONObject jobj;
-					try {
-						jobj = result.getJSONObject(0);
-						String s = jobj.getString("success");
-						if (s.equals("true")) {
-							
-							Intent homeActivity = new Intent(HelpApplication.this.activity, Home.class);
-							homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-							homeActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							
-							String uName = jobj.getString("user_name");
-							String userId = jobj.getString("user_Id");
-							
-							startActivity(homeActivity);
-						} else {
-							final ConfirmDialog cd = new ConfirmDialog(HelpApplication.this.activity, null);
-							cd.setContents("Login failed.", jobj.getString("message"));
-							cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
-								public void onClick(View v) {
-									cd.dismiss();
-								}
-							});
-							cd.show();
+					if (result != null) {
+						Log.i("json", result.toString());
+						super.onPostExecute(result);
+						JSONObject jobj;
+						try {
+							jobj = result.getJSONObject(0);
+							String s = jobj.getString("success");
+							if (s.equals("true")) {
+
+								Intent homeActivity = new Intent(HelpApplication.this.activity, Home.class);
+								homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+								homeActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+								
+								String userId = jobj.getString("user_Id");
+								homeActivity.putExtra("user_id", userId);
+								
+								AppConstant.userId = userId;
+
+//								String uName = jobj.getString("user_name");
+
+								startActivity(homeActivity);
+							} else {
+								final ConfirmDialog cd = new ConfirmDialog(HelpApplication.this.activity, null);
+								cd.setContents("Login failed.", jobj.getString("message"));
+								cd.cdpoitiveButton.setOnClickListener(new OnClickListener() {
+									public void onClick(View v) {
+										cd.dismiss();
+									}
+								});
+								cd.show();
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
+						if (progressDlg.isShowing())
+							progressDlg.dismiss();
 					}
-					if (progressDlg.isShowing())
-						progressDlg.dismiss();
 				}
 			}
 
@@ -125,15 +132,15 @@ public class HelpApplication extends Application {
 		}
 
 	}
-	
+
 	public boolean isMyServiceRunning(Class<?> serviceClass) {
-	    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-	        if (serviceClass.getName().equals(service.service.getClassName())) {
-	            return true;
-	        }
-	    }
-	    return false;
+		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+			if (serviceClass.getName().equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
