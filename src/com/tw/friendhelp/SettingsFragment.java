@@ -40,7 +40,11 @@ public class SettingsFragment extends Fragment implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btnLogOut:
-
+			HelpApplication helpApp = (HelpApplication) getActivity().getApplication();
+			helpApp.signOut();
+			getActivity().finish();
+			Intent act = new Intent(getActivity(), Login.class);
+			startActivity(act);
 			break;
 		case R.id.btnStopService:
 			if (checkServiceRunning()) {
